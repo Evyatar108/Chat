@@ -42,8 +42,12 @@ def acceptNewClient(count,banList):
 def broadcast(msg):
 	text = '{}: {}'.format(msg.getNick(),msg.getContent())
 	logger.info('IP: {} Nick: {} Message: {}'.format(msg.getAddr(),msg.getNick(),msg.getContent()))
+	broadcastText(text)
+
+def broadcastText(text):
 	for client in clients.values():
 		sendText(client,text)
+
 
 def broadcastAll(msgs):
 	for msg in msgs:
@@ -112,6 +116,7 @@ def changeNickCommand(client,words):
 		if len(nick) <= 32:
 			if nick not in usedNicks:
 				usedNicks.remove(client.getNick)
+				broadcastText('{} changed nick to {}'.format(client.getNick(),nick))
 				client.setNick(nick)
 				usedNicks.append(nick)
 			else:
@@ -129,7 +134,10 @@ def handleConsoleInput():
 
 def handleAdminCommand(words):
 	if len(words) > 0:
-		if words[0] is 'ban':
+		if words[0] is 'kick':
+			if len(words)>1:
+				kick(words[1])
+		elif words[0] is 'ban':
 			if len(words) > 1:
 				ban(words[1])
 			else:
@@ -148,13 +156,12 @@ def unban(ip):
 		print('{} is not banned'.format(ip))
 
 def ban(nick):
-	for client in clients:
-		if client.getNick() is nick:
-			banList.append(client.getAddr()[0])
+	banList.append(getClientByNick(nick).getAddr()[0])
 	saveBanned()
 
 def kick(nick):
-	#TODO
+	disconnect(getClientByNick(nick))
+	broadcastText('{} was kicked'.format(nick))
 	return
 
 def register(client,msg):
@@ -179,6 +186,10 @@ def privateMsg(client,words):
 	#TODO
 	return
 
+def getClientByNick(nick):
+	for client in clients.values():
+		if client.getNick() is nick:
+			return client
 
 def run():
 	userCount=1

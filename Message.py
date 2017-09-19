@@ -1,9 +1,10 @@
+import time
 class Message:
 
-	def __init__(self,addr,nick,time,content):
+	def __init__(self,nick,content):
 		self.__nick = nick
 		self.__content = content
-		self.__time = time
+		self.__time = time.time()
 
 	def getContent(self):
 		return self.__content

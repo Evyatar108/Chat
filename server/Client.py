@@ -43,7 +43,7 @@ class Client:
 		msgs=None
 		if data:
 			raw_msgs, self.__buffer= Client.__parseMsgs(self.__buffer + data)
-			msgs = [Message(nick=self.getNick(),content=msg,time=time.time()) for msg in msgs]
+			msgs = [Message(nick=self.getNick(),content=msg) for msg in msgs]
 			for msg in msgs:
 				self.__lastMsgs.appendleft(msg)
 			self.checkSpam()

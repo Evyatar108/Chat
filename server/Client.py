@@ -18,6 +18,18 @@ class Client:
 		self.__buffer=bytes()
 		self.__nick=nick
 		self.__lastMsgs=deque(maxlen=Client.MAX_LAST_MSGS)
+		self.__user=None
+
+	def login(self,user):
+		self.__user=user
+		self.__nick=user.getNick()
+		return self
+
+	def isLogged(self):
+		return self.__user is not None
+
+	def isAdmin(self):
+		return self.isLogged() and self.__user.isAdmin()
 
 	def __parseMsgs(data):
 		chunks = data.split(b'\0')

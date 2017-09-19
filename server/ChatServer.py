@@ -5,6 +5,7 @@ import ssl
 import sys
 from server.Client import Client
 
+
 logger = logging.getLogger('server logger')
 logging.basicConfig(level=logging.DEBUG)
 clients= {}
@@ -79,12 +80,11 @@ def saveBanned():
 			file.write(ip+'\n')
 
 
-#handle commands and remove them from msgs - TODO
 def handleMsgs(client,msgs):
 	procMsgs = []
 	for msg in msgs:
 		if isCommand(msg):
-			handleCommand(client,msg.getContent()[1:])
+			handleCommand(client,msg.getContent())
 		else:
 			procMsgs.append(msg)
 
@@ -94,15 +94,21 @@ def isCommand(msg):
 	return msg.getContent()[0] is '/'
 
 def handleCommand(client,command):
+	command = command[1:]
 	words = command.split(' ')
 	if len(words)>0:
 		if words[0] is 'nick':
-			changeNickCommand(client,words)
+			changeNickCommand(client,words[1:])
+		#elif words[0] is 'pm':
+			#privateMsg(client,words[1:]# )
+		elif client.isAdmin():
+			handleAdminCommand(words)
 
 
 def changeNickCommand(client,words):
-	if len(words) > 1:
-		nick = words[1]
+	#TODO update after implementing users, change nick only for registered users
+	if len(words) > 0:
+		nick = words[0]
 		if len(nick) <= 32:
 			if nick not in usedNicks:
 				usedNicks.remove(client.getNick)
@@ -117,15 +123,19 @@ def changeNickCommand(client,words):
 
 def handleConsoleInput():
 	line = sys.stdin.readline()
-	words = line.split(' ')
-	if len(words)>0:
+	words= line.split(' ')
+	handleAdminCommand(words)
+	return
+
+def handleAdminCommand(words):
+	if len(words) > 0:
 		if words[0] is 'ban':
-			if len(words)>1:
+			if len(words) > 1:
 				ban(words[1])
 			else:
 				print('please specify an ip to ban')
 		elif words[0] is 'uban':
-			if len(words)>1:
+			if len(words) > 1:
 				unban(words[1])
 			else:
 				print('please specify an ip to uban')
@@ -142,6 +152,33 @@ def ban(nick):
 		if client.getNick() is nick:
 			banList.append(client.getAddr()[0])
 	saveBanned()
+
+def kick(nick):
+	#TODO
+	return
+
+def register(client,msg):
+	# TODO implement current used nick registering using password
+	return
+
+def login(client, msg):
+	#msg.getContent() will be of the form "/login *username* *password*"
+	#client program will have a special window to safely login without sending it in the chat
+	#TODO implement login, change current nick to the registered one
+	return
+
+def loadUserList():
+	#TODO load userlist from a file
+	return
+
+def saveUserList():
+	#TODO save userlist into a file
+	return
+
+def privateMsg(client,words):
+	#TODO
+	return
+
 
 def run():
 	userCount=1
